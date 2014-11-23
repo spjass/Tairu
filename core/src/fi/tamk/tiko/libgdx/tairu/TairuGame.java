@@ -9,11 +9,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 import java.util.LinkedList;
 
 public class TairuGame extends ApplicationAdapter {
-	Texture img;
+    Texture img;
     private OrthographicCamera camera;
     TiledMap tiledMap;
     TiledMapRenderer tiledMapRenderer;
@@ -55,18 +57,30 @@ public class TairuGame extends ApplicationAdapter {
     public static int WORLD_HEIGHT_PIXELS = TILES_AMOUNT_HEIGHT * TILE_HEIGHT;
     public static int WORLD_WIDTH_PIXELS  = TILES_AMOUNT_WIDTH  * TILE_WIDTH;
 
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-	}
+    @Override
+    public void create () {
+        width = Gdx.graphics.getWidth();
+        height = Gdx.graphics.getHeight();
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false,         // y points up
+                WINDOW_WIDTH,            // width
+                WINDOW_HEIGHT);          // height
+        camera.update();
+        tiledMap = new TmxMapLoader().load("map1.tmx");
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        batch = new SpriteBatch();
+        img = new Texture("badlogic.jpg");
+    }
 
-	@Override
-	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
-	}
+    @Override
+    public void render () {
+        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.setProjectionMatrix(camera.combined);
+        camera.update();
+        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
+        batch.begin();
+        batch.end();
+    }
 }
