@@ -1,0 +1,2 @@
+solver:
+algoritmi jolla yhdistetään värinodet

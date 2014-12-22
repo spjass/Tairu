@@ -1,86 +1,184 @@
 package fi.tamk.tiko.libgdx.tairu;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
-public class TairuGame extends ApplicationAdapter {
-    Texture img;
-    private OrthographicCamera camera;
-    TiledMap tiledMap;
-    TiledMapRenderer tiledMapRenderer;
-    SpriteBatch batch;
-    int frame;
-    float width;
-    float height;
-    Music music;
+import fi.tamk.tiko.libgdx.tairu.game.Level;
+import fi.tamk.tiko.libgdx.tairu.game.Solver;
+import fi.tamk.tiko.libgdx.tairu.screens.LevelScreen;
+import fi.tamk.tiko.libgdx.tairu.screens.MainMenuScreen;
+
+/**
+ * Main game class
+ *
+ * @author Juho Rautio
+ * @version 1.0
+ * @since 1.0
+ */
+public class TairuGame extends Game {
+
+    public SpriteBatch batch;
+    public BitmapFont font;
+    public String currentLevelString;
+    public Level currentLevel;
+    Preferences prefs;
+    ArrayList<String> levelList;
+    boolean debug;
+    public Screen currentScreen;
+    public Screen previousScreen;
+    public Music clickSound;
+    public Music victorySound;
+    public Music defeatSound;
+    public Music startSound;
+    public Music music;
+    boolean mute;
+    LevelScreen levelScreen;
+    MainMenuScreen mainMenuScreen;
 
 
-    /**
-     * Window width in pixels
-     */
-    private final int WINDOW_WIDTH = 1024;
-
-    /**
-     * Window height in pixels
-     */
-    private final int WINDOW_HEIGHT = 640;
-
-
-    /*
-     * Map size is 42 x 42 tiles.
-     */
-    static int TILES_AMOUNT_WIDTH  = 16;
-    static int TILES_AMOUNT_HEIGHT = 10;
-
-    /**
-     * One tile is 32
-     */
-    static int TILE_WIDTH          = 64;
-    static int TILE_HEIGHT         = 64;
-
-    /**
-     * World in pixels
-     * WORLD_HEIGHT_PIXELS = 10 * 64= 640 pixels
-     * WORLD_WIDTH_PIXELS  = 16 * 64 = 1024 pixels
-     */
-    public static int WORLD_HEIGHT_PIXELS = TILES_AMOUNT_HEIGHT * TILE_HEIGHT;
-    public static int WORLD_WIDTH_PIXELS  = TILES_AMOUNT_WIDTH  * TILE_WIDTH;
 
     @Override
     public void create () {
-        width = Gdx.graphics.getWidth();
-        height = Gdx.graphics.getHeight();
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false,         // y points up
-                WINDOW_WIDTH,            // width
-                WINDOW_HEIGHT);          // height
-        camera.update();
-        tiledMap = new TmxMapLoader().load("map1.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        font = new BitmapFont(Gdx.files.internal("font2.fnt"));
         batch = new SpriteBatch();
-        img = new Texture("badlogic.jpg");
+        prefs = Gdx.app.getPreferences("Tairu");
+        levelList = initLevelList(21);
+        debug = false;
+        this.setLevelScreen(new LevelScreen(this));
+        this.setMainMenuScreen(new MainMenuScreen(this));
+        //solverTest();
+        loadSounds();
+        music.setLooping(true);
+        music.setVolume(0.4f);
+        music.play();
+        this.setScreen(mainMenuScreen);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        music.stop();
+        /*music.dispose();
+        clickSound.dispose();
+        defeatSound.dispose();
+        startSound.dispose();
+        victorySound.dispose();
+        //font.dispose();
+        //batch.dispose();
+        */
+    }
+
+    public Preferences getPrefs() {
+        return prefs;
+    }
+
+    public void setPrefs(Preferences prefs) {
+        this.prefs = prefs;
+    }
+
+    public ArrayList<String> getLevelList() {
+        return levelList;
+    }
+
+    public void setLevelList(ArrayList<String> levelList) {
+        this.levelList = levelList;
+    }
+
+    /**
+     * Initializes the list of map names
+     *
+     * return ArrayList of map names
+     */
+    public ArrayList<String> initLevelList (int levelsLength) {
+
+        ArrayList<String> levelList = new ArrayList<String>();
+
+
+        levelList.clear();
+
+        for(int i = 1; i <= levelsLength; i++) {
+            if (i <= 9) {
+                levelList.add("0" + i+".tmx");
+            } else {
+                levelList.add(i+".tmx");
+            }
+
+        }
+
+        levelList.add("testi.tmx");
+
+
+        this.levelList = levelList;
+        return levelList;
+    }
+
+    public void solverTest() {
+        Solver solver = new Solver(this);
+        solver.solve(new Level("07.tmx"));
+    }
+
+    public void setCurrentScreen(Screen screen) {
+        previousScreen = currentScreen;
+        this.currentScreen = screen;
+    }
+
+    public Screen getPreviousScreen() {
+        return previousScreen;
+    }
+
+    public void setLevelScreen (LevelScreen levelScreen) {
+        this.levelScreen = levelScreen;
+    }
+
+    public LevelScreen getLevelScreen() {
+        return levelScreen;
+    }
+
+    public MainMenuScreen getMainMenuScreen() {
+        return mainMenuScreen;
+    }
+
+    public void setMainMenuScreen(MainMenuScreen mainMenuScreen) {
+        this.mainMenuScreen = mainMenuScreen;
+    }
+    /**
+     * Loads all sounds
+     */
+    public void loadSounds() {
+        this.clickSound = Gdx.audio.newMusic(Gdx.files.internal("click.mp3"));
+        this.defeatSound = Gdx.audio.newMusic(Gdx.files.internal("defeat.mp3"));
+        this.victorySound = Gdx.audio.newMusic(Gdx.files.internal("victory.mp3"));
+        this.startSound = Gdx.audio.newMusic(Gdx.files.internal("start.mp3"));
+        this.music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+
+    }
+
+
+
+
+    public Screen getCurrentScreen() {
+        return currentScreen;
     }
 
     @Override
     public void render () {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.setProjectionMatrix(camera.combined);
-        camera.update();
-        tiledMapRenderer.setView(camera);
-        tiledMapRenderer.render();
-        batch.begin();
-        batch.end();
+        super.render();
     }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+
 }

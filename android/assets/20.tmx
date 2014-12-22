@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="16" height="10" tilewidth="64" tileheight="64">
+ <properties>
+  <property name="maxMoves" value="5"/>
+ </properties>
+ <tileset firstgid="1" name="tiles" tilewidth="64" tileheight="64">
+  <image source="tiles.jpg" width="640" height="128"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="16" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYKAeYKRQDbn6GZEwMfqJUcuIg00sIFU/uhp8+nGFATn6cYUHI5Fy+OzApx8GACQMACc=
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="16" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmNAwsQBdH6nmUKof2QxcfGoCYt1JjDomNJpYuYHUz4RFjhj9MH0Aj2AAcQ==
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="16" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAEzESKIcvhkyeknlL96HL47MFnHjJG149LDbnuxOVmYvWT4i9S7KQ3AACfWABt
+  </data>
+ </layer>
+ <layer name="Tile Layer 4" width="16" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYWBgYEHDuAC6OkLqCYHhoJ9SgG4GofBH51Oqn5AaYuXI1Q8AtnAAeQ==
+  </data>
+ </layer>
+</map>
